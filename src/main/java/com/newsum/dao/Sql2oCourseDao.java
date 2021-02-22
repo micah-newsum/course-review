@@ -7,6 +7,7 @@ import org.sql2o.Sql2o;
 import org.sql2o.Connection;
 import org.sql2o.Sql2oException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Sql2oCourseDao implements CourseDao{
@@ -34,6 +35,12 @@ public class Sql2oCourseDao implements CourseDao{
 
   @Override
   public List<Course> findAll() {
-    return null;
+    String sql = "SELECT * FROM courses";
+    List<Course> allCourses = new ArrayList<>();
+    try (Connection con = sql2o.open()){
+      allCourses = con.createQuery(sql)
+                      .executeAndFetch(Course.class);
+    }
+    return allCourses;
   }
 }
