@@ -1,5 +1,6 @@
 package com.newsum.dao;
 
+    import static org.junit.Assert.assertEquals;
     import static org.junit.Assert.assertNotEquals;
 
     import com.newsum.model.Course;
@@ -39,8 +40,16 @@ public class Sql2oCourseDaoTest {
   }
 
   @Test
-  public void findAll() {
+  public void addedCoursesAreReturnedFromFindAll() throws Exception{
+    Course course = new Course("Test","http://test.com");
+    dao.add(course);
 
+    assertEquals(1,dao.findAll().size());
+  }
+
+  @Test
+  public void noCoursesReturnsEmptyList() throws Exception{
+    assertEquals(0, dao.findAll().size());
   }
 
 }
