@@ -9,9 +9,13 @@ import static spark.Spark.post;
 import com.google.gson.Gson;
 
 import com.newsum.dao.CourseDao;
+import com.newsum.dao.ReviewDao;
 import com.newsum.dao.Sql2oCourseDao;
+import com.newsum.dao.Sql2oReviewDao;
 import com.newsum.exc.ApiError;
+import com.newsum.exc.DaoException;
 import com.newsum.model.Course;
+import com.newsum.model.Review;
 import org.sql2o.Sql2o;
 
 import java.util.HashMap;
@@ -31,7 +35,11 @@ public class Api {
 
     Sql2o sql2o = new Sql2o(
         String.format("%s;INIT=RUNSCRIPT from 'classpath:db/init.sql'",datasource),"","");
+
+    // init dao's
     CourseDao courseDao = new Sql2oCourseDao(sql2o);
+    ReviewDao reviewDao = new Sql2oReviewDao(sql2o);
+
     Gson gson = new Gson();
 
     post("/courses","application/json",(req,res) -> {
@@ -54,6 +62,26 @@ public class Api {
       }
       return course;
     },gson::toJson);
+
+    // reviews endpoints
+    post("/courses/:courseId/reviews",(req,res) ->{
+      int courseId = Integer.parseInt(req.params("courseId"));
+      Review review = gson.fromJson(req.body(), Review.class);
+      review.setCourseId(courseId);
+      try{
+        reviewDao.add(review);
+      } catch (DaoException exception){
+        throw new ApiError(500,exception.getMessage());
+      }
+      res.status(201);
+      return review;
+    },gson::toJson);
+
+    get("/courses/:courseId/reviews",(req,res) ->{
+            int courseId = Integer.parseInt(req.params("courseId"));
+            return reviewDao.findByCourseId(courseId);
+            }
+            ,gson::toJson);
 
     //exception handler
     exception(ApiError.class,(exc,req,res) -> {
