@@ -10,5 +10,5 @@ public interface ReviewDao {
 
   List<Review> findAll();
 
-  List<Review> findByCourseId();
+  List<Review> findByCourseId(int courseId);
 }
